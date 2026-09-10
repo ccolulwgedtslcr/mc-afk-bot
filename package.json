@@ -1,0 +1,12 @@
+{
+  "name": "mc-afk-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "mineflayer": "^6.2.0",
+    "dotenv": "^16.4.5"
+  }
+}
