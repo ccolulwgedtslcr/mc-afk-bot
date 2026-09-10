@@ -16,20 +16,35 @@ const COMMANDS = [
 ];
 
 let bot = null;
+let commandTimers = [];
+
+function clearTimers() {
+  commandTimers.forEach(t => clearTimeout(t));
+  commandTimers = [];
+}
 
 function createBot() {
+  // اگه قبلاً بات وجود داشت، تمیز کن
+  if (bot) {
+    try { bot.quit(); } catch {}
+    bot = null;
+  }
+  clearTimers();
+
   bot = mineflayer.createBot(CONFIG);
 
   bot.on('spawn', () => {
     console.log('✅ بات وصل شد. شروع دستورات...');
+    
     COMMANDS.forEach(({ cmd, delay }) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (bot && bot.entity) {
-          bot.chat(cmd)
-            .then(() => console.log(`📤 ارسال: ${cmd}`))
-            .catch(e => console.error(`❌ خطا: ${e.message}`));
+          // mineflayer v4: bot.chat() پرامیس برنمی‌گردونه — فقط صدا بزن
+          bot.chat(cmd);
+          console.log(`📤 ارسال: ${cmd}`);
         }
       }, delay);
+      commandTimers.push(timer);
     });
   });
 
@@ -38,7 +53,9 @@ function createBot() {
   });
 
   bot.on('kicked', (reason) => {
-    console.error(`❌ کیک: ${reason}`);
+    console.error(`❌ کیک شد: ${JSON.stringify(reason)}`);
+    // بعد از کیک، ۶۰ ثانیه صبر کن (تا اکانت قبلی از سرور خارج بشه)
+    setTimeout(createBot, 60000);
   });
 
   bot.on('error', (err) => {
@@ -46,14 +63,17 @@ function createBot() {
   });
 
   bot.on('end', () => {
-    console.log('🔴 قطع شد. reconnect در ۵ ثانیه...');
-    setTimeout(createBot, 5000);
+    console.log('🔴 قطع شد. تلاش مجدد در ۶۰ ثانیه...');
+    clearTimers();
+    setTimeout(createBot, 60000);
   });
 }
 
 createBot();
 
 process.on('SIGINT', () => {
+  console.log('🚪 خاموش شدن...');
+  clearTimers();
   if (bot) bot.quit();
   process.exit();
 });
