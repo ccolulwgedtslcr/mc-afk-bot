@@ -12,7 +12,7 @@ const CONFIG = {
 
 // ===== دنباله دستورات (تأخیر نسبت به spawn) =====
 const COMMAND_SEQUENCE = [
-  { cmd: `/login "your-password"`, delay: 3000 },
+  { cmd: `/login @#$Mani11338899`, delay: 3000 },
   { cmd: '/prison',                                delay: 15000 },
   { cmd: '/warp AFK',                              delay: 28000 },
 ];
